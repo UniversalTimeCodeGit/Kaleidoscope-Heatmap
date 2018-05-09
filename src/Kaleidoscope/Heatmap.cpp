@@ -111,22 +111,17 @@ void Heatmap::shiftStats(void) {
   highest_ = highest_ >> 1;
 }
 
-void Heatmap::setup(void) {
-  Kaleidoscope.useEventHandlerHook(eventHook);
-  Kaleidoscope.useLoopHook(loopHook);
-}
-
-Key Heatmap::eventHook(Key mapped_key, byte row, byte col, uint8_t key_state) {
+EventHandlerResult Heatmap::onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t key_state) {
   // this methode is called frequently by Kaleidoscope
   // even if the module isn't activated
 
   // if it is a synthetic key, skip it
   if (key_state & INJECTED)
-    return mapped_key;
+    return EventHandlerResult::OK;
 
   // if the key is not toggled on, skip it
   if (!keyToggledOn(key_state))
-    return mapped_key;
+    return EventHandlerResult::OK;
 
   // increment the heatmap_ value related to the key
   heatmap_[row][col]++;
@@ -143,10 +138,10 @@ Key Heatmap::eventHook(Key mapped_key, byte row, byte col, uint8_t key_state) {
       shiftStats();
   }
 
-  return mapped_key;
+  return EventHandlerResult::OK;
 }
 
-void Heatmap::loopHook(bool is_post_clear) {
+EventHandlerResult Heatmap::beforeEachCycle() {
   // this methode is called frequently by Kaleidoscope
   // even if the module isn't activated
 
@@ -158,6 +153,8 @@ void Heatmap::loopHook(bool is_post_clear) {
   // between heat_colors[x] and heat_colors[x+1].
   if (highest_ > (static_cast<uint16_t>(heat_colors_length) << 9))
     shiftStats();
+
+  return EventHandlerResult::OK;
 }
 
 void Heatmap::update(void) {
@@ -187,9 +184,6 @@ void Heatmap::update(void) {
       ::LEDControl.setCrgbAt(r, c, computeColor(v));
     }
   }
-}
-
-Heatmap::Heatmap(void) {
 }
 
 }

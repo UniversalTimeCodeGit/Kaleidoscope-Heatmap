@@ -1,6 +1,6 @@
 /* -*- mode: c++ -*-
  * Kaleidoscope-Heatmap -- Heatmap LED effect for Kaleidoscope.
- * Copyright (C) 2016, 2017  Gergely Nagy
+ * Copyright (C) 2016, 2017, 2018  Gergely Nagy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +24,16 @@
 namespace kaleidoscope {
 class Heatmap : public LEDMode {
  public:
-  Heatmap(void);
+  Heatmap(void) {}
 
   static uint16_t update_delay;
   static const cRGB *heat_colors;
   static uint8_t heat_colors_length;
 
+  EventHandlerResult onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t key_state);
+  EventHandlerResult beforeEachCycle();
+
  protected:
-  void setup(void) final;
   void update(void) final;
 
  private:
@@ -41,9 +43,6 @@ class Heatmap : public LEDMode {
 
   static void shiftStats(void);
   static cRGB computeColor(float v);
-
-  static Key eventHook(Key mapped_key, byte row, byte col, uint8_t key_state);
-  static void loopHook(bool is_post_clear);
 };
 }
 
